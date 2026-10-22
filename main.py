@@ -89,10 +89,24 @@ def one(x,info, filename):
 
     #ending module
     f.write("endmodule")
+    f.close()
 
+def two(x, info, filename):
+    print("SOP: ",x)
+    f = open("output.txt", "w")
 
-def two(x):
-    print("POS: not done yet")
+    f.write("module x(\n")
+    f.write("   output reg XOUT,\n")
+    counter = 0
+    while counter< len(info[0])-1:
+        f.write("   input wire "+info[0][counter]+",\n")
+        counter = counter+1
+    f.write("   input wire "+info[0][counter]+"\n")
+    f.write(");\n")
+    
+    #ending module
+    f.write("endmodule")
+    f.close()
 
 def three(x):
     print("ISOP: not done yet")
@@ -163,7 +177,7 @@ def main():
         if task == "1":
             one(x, info, filename)
         elif task == "2":
-            two(x)
+            two(x, info, filename)
         elif task == "3":
             three(x)
         elif task == "4":
