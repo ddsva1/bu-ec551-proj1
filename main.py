@@ -1,6 +1,7 @@
 import sys
 
-dict = {"1": "Sum of Products",
+dict = {
+    "1": "Sum of Products",
     "2": "Product of Sums",
     "3": "Inverse Sum of Products",
     "4": "Inverse Product of Sums",
@@ -10,8 +11,8 @@ dict = {"1": "Sum of Products",
     "8": "Number of Essential Prime Implicants",
     "9": "ON-Set Minterms (Σ𝑚)",
     "10": "OFF-Set Minterms (Π𝑀)",
-    "11": "Custom Command 1",
-    "12": "Custom Command 2"
+    "11": "SOP to SOP Verilog",
+    "12": "SOP to POS Verilog"
  }
 
 def help():
@@ -26,10 +27,51 @@ def help():
         print(item, ": ", dict[item])
     print("==================================================")
 
-def one(x,info, filename):
-    print("SOP: ",x)
-    f = open("output.txt", "w")
+def one(x, info):
+    print("SOP: "+ x)
+    canon = []
+    print(info[0])
+    print(info[1])
+    for item in info[1]:
+        missing = []
+        for item2 in info[0]:
+            if item2 not in item:
+                missing.append(item2)
+        print(item)
+        print("missing=",missing)
 
+def two(x, info):
+    print("SOP to CANONICAL POS")
+
+def three(x):
+    print("ISOP: not done yet")
+
+def four(x):
+    print("IPS: not done yet")
+
+def five(x):
+    print("MSP: not done yet")
+
+def six(x):
+    print("LMSP: not done yet")
+
+def seven(x):
+    print("NPI: not done yet")
+
+def eight(x):
+    print("NEPI: not done yet")
+
+def nine(x):
+    print("ONSM: not done yet")
+
+def ten(x):
+    print("OFFSM: not done yet")
+
+def eleven(x, info):
+    print("CC1: SOP to VERILOG")
+    print("SOP: ",x)
+    
+    f = open("output.txt", "w")
     #module setup and i/o wires
     f.write("module x(\n")
     f.write("   output reg XOUT,\n")
@@ -47,7 +89,6 @@ def one(x,info, filename):
         f.write("   wire and"+str(counter)+";\n")
         andwires.append("and"+str(counter))
         counter = counter+1
-    print("temp wires: "+str(andwires))
 
     #creating and gates
     andx = 0
@@ -85,13 +126,11 @@ def one(x,info, filename):
             counter = counter + 1
     f.write("   or(XOUT,"+orgate+");\n")
 
-
-
     #ending module
     f.write("endmodule")
     f.close()
 
-def two(x, info, filename):
+def twelve(x, info):
     print("SOP: ",x)
     f = open("output.txt", "w")
 
@@ -103,40 +142,54 @@ def two(x, info, filename):
         counter = counter+1
     f.write("   input wire "+info[0][counter]+"\n")
     f.write(");\n")
+
+    #internal wires setup
+    counter = 0
+    orwires = []
+    while counter <len(info[1]):
+        f.write("   wire or"+str(counter)+";\n")
+        orwires.append("or"+str(counter))
+        counter = counter+1
+
+    #creating or gates
+    orx = 0
+    for item in info[1]:
+        orlist = "~"+item[0]
+        counter = 1
+        if (len(item) == 1):
+            orlist = orlist + ", 1'b1"
+        elif (len(item)==2 and orlist == "~~"):
+            orlist = orlist + item[1]+", 1'b1"
+        else:
+            if orlist == "~":
+                orlist = item[1]
+                counter = counter+1
+            while counter<len(item):
+                if item[counter] == "~":
+                    orlist = orlist+", "+item[counter+1]
+                    counter = counter+2
+                elif item[counter]!= "~":
+                    orlist = orlist+", ~"+item[counter]
+                    counter = counter +1
+            
+        f.write("   or("+orwires[orx]+", "+orlist+");\n")
+        orx = orx+1
+    
+
+    #creating nand gate
+    nandgate = orwires[0]
+    counter = 1
+    if (len(info[1]) == 1):
+        nandgate = nandgate + ", 1'b1"
+    else:
+        while counter < len(info[1]):
+            nandgate = nandgate + ", " +orwires[counter]
+            counter = counter + 1
+    f.write("   nand(XOUT,"+nandgate+");\n")
     
     #ending module
     f.write("endmodule")
     f.close()
-
-def three(x):
-    print("ISOP: not done yet")
-
-def four(x):
-    print("IPS: not done yet")
-
-def five(x):
-    print("MSP: not done yet")
-
-def six(x):
-    print("LMSP: not done yet")
-
-def seven(x):
-    print("NPI: not done yet")
-
-def eight(x):
-    print("NEPI: not done yet")
-
-def nine(x):
-    print("ONSM: not done yet")
-
-def ten(x):
-    print("OFFSM: not done yet")
-
-def eleven(x):
-    print("CC1: not done yet")
-
-def twelve(x):
-    print("CC2: not done yet")
 
 def zero(x):
     list_of_prods = x.split('+')
@@ -175,29 +228,29 @@ def main():
             quit
         info = zero(x)
         if task == "1":
-            one(x, info, filename)
+            one(x, info)
         elif task == "2":
-            two(x, info, filename)
+            two(x, info)
         elif task == "3":
-            three(x)
+            three(x, info)
         elif task == "4":
-            four(x)
+            four(x, info)
         elif task == "5":
-            five(x)
+            five(x, info)
         elif task == "6":
-            six(x)
+            six(x, info)
         elif task == "7":
-            seven(x)
+            seven(x, info)
         elif task == "8":
-            eight(x)
+            eight(x, info)
         elif task == "9":
-            nine(x)
+            nine(x, info)
         elif task == "10":
-            ten(x)
+            ten(x, info)
         elif task == "11":
-            eleven(x)
+            eleven(x, info)
         elif task == "12":
-            twelve(x)
+            twelve(x, info)
                 
                 
 
