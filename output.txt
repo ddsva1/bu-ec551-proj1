@@ -1,0 +1,7 @@
+module x(
+   output reg XOUT,
+   input wire A,
+   input wire B,
+   input wire C,
+   input wire D
+);
