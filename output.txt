@@ -1,0 +1,15 @@
+module x(
+   output reg XOUT,
+   input wire A,
+   input wire B,
+   input wire C,
+   input wire D
+);
+   wire and0;
+   wire and1;
+   wire and2;
+   and(and0, ~A, 1'b1);
+   and(and1, B, ~C);
+   and(and2, ~C, D);
+   or(XOUT,and0, and1, and2);
+endmodule
