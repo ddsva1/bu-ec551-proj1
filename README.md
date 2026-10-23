@@ -14,7 +14,6 @@ py main.py testdata/sop7.txt              # load a file and open the command men
 py main.py 5 testdata/sop7.txt            # run one command (here: minimized SOP) and exit
 py main.py a testdata/full_adder.blif     # run all 12 commands
 py main.py v testdata/full_adder.blif     # generate Verilog into output/
-py -m unittest test_engine.py             # run the tests
 ```
 
 (`py` is the Windows launcher; use `python3` on macOS/Linux.)
@@ -133,7 +132,6 @@ bu-ec551-proj1/
 ├── logic.py             BoolFunction, cube helpers, formatting, Quine-McCluskey, minimal cover
 ├── custom_commands.py   #11 hazard detection, #12 truth table export
 ├── verilog_gen.py       structural Verilog generation (circuit_sop / circuit_pos)
-├── test_engine.py       unit tests (py -m unittest test_engine.py)
 ├── fpga/                hand-written board files (same for every design)
 │   ├── top_nexys4ddr.v  wrapper module "top", Digilent Nexys 4 DDR
 │   └── Nexys4DDR_Master.xdc  pin constraints, Digilent Nexys 4 DDR
@@ -166,17 +164,11 @@ The switches read as the minterm number in binary. The SOP and POS circuits impl
 the same function, so their LEDs should always match. Check them against the CSV from
 command 12.
 
-## Testing
-
-`py -m unittest test_engine.py` checks that the minimized SOP/POS of every file in
-`testdata/` reproduces the original truth table. It also checks the POS and BLIF
-parsers, the cyclic function with no essential PIs, and the hazard example.
-
 ## AI usage
 
 Per the course AI policy: this project was developed with help from Anthropic's Claude
 (Claude Code). It was used to restructure our original `main.py` and BLIF parser into
-the current modules, and to write the minimization, hazard, truth-table, Verilog and
-test code, the FPGA wrappers/constraints, and this README. Design decisions (input
+the current modules, and to write the minimization, hazard, truth-table and Verilog
+code, the FPGA wrappers/constraints, and this README. Design decisions (input
 formats, interface, minimization method, custom commands, Verilog style, target
 boards) were made by the team.
