@@ -6,7 +6,7 @@ computes canonical and minimized forms and logic metrics, finds hazards, exports
 truth tables, and generates **structural Verilog** that runs on an FPGA (Arty Z7-20
 or Nexys 4 DDR).
 
-Plain Python 3 (3.8+), standard library only; nothing to install.
+Plain Python 3 (3.8+), standard library only; nothing else to install.
 
 ## Quick start
 
