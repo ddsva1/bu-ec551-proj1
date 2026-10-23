@@ -36,7 +36,7 @@ significant bit of the minterm number. The output is called `F`.
 
 **BLIF circuit (`.blif`)**: the graph-based input. Each `.names` block is one node
 (gate), and the net names are the wires between nodes. Supported: `.model`, `.inputs`,
-`.outputs`, `.names` with ON-set (`... 1`) or OFF-set (`... 0`) rows, `.end`,
+`.outputs`, `.names` with either ON-set (`... 1`) or OFF-set (`... 0`) rows (not both), `.end`,
 `#` comments and `\` line continuation. Multiple outputs are allowed; every command
 runs on each one. Example: [testdata/gates.blif](testdata/gates.blif)
 ```
@@ -62,8 +62,8 @@ runs on each one. Example: [testdata/gates.blif](testdata/gates.blif)
 | 8 | Essential prime implicants | count (and the list) |
 | 9 | ON-set minterms | count + Σm list |
 | 10 | OFF-set maxterms | count + ΠM list |
-| 11 | **Custom 1: hazard detection** | static-1 hazards of the minimized SOP and static-0 hazards of the minimized POS, the term/clause that fixes each one, and the hazard-free expression |
-| 12 | **Custom 2: truth table export** | aligned table on screen + `output/<name>_truth_table.csv` |
+| 11 | **Custom Command 1: hazard detection** | static-1 hazards of the minimized SOP and static-0 hazards of the minimized POS, the term/clause that fixes each one, and the hazard-free expression |
+| 12 | **Custom Command 2: truth table export** | aligned table on screen + `output/<name>_truth_table.csv` |
 | v | Structural Verilog | `output/<name>_sop.v` (module `circuit_sop`) and `output/<name>_pos.v` (module `circuit_pos`) |
 | a | Run all of 1–12 | |
 
@@ -105,7 +105,7 @@ is `A~C`.
 - **Quine-McCluskey** (`prime_implicants`): start with one cube per minterm and keep
   merging pairs that differ in one variable (`101` + `100` → `10-`). Cubes that never
   merge are the prime implicants.
-- **Essential PIs**: primes that are the only prime covering some minterm.
+- **Essential PIs**: prime implicants that are the only prime implicant covering a minterm.
 - **Choosing the cover** (`minimal_cover`): take the essential PIs. Then, while some
   minterms are uncovered, add the prime that covers the most of them (fewest literals
   on a tie). This greedy choice is simple and fast, and usually gives the minimum, but
@@ -140,7 +140,8 @@ bu-ec551-proj1/
 │   ├── arty_z7_20.xdc   pin constraints, Digilent Arty Z7-20
 │   ├── top_nexys4ddr.v  wrapper module "top", Digilent Nexys 4 DDR
 │   └── nexys4ddr.xdc    pin constraints, Digilent Nexys 4 DDR
-├── testdata/            example inputs (sop*.txt, pos1.txt, hazard.txt, cyclic.txt, *.blif)
+├── testdata/            example inputs (sop*.txt, pos*.txt, hazard.txt, cyclic.txt, *.blif)
+├── xtestdata/           example blif inputs with errors, to prove error detection.(xsop*.blif)
 └── output/              generated .v and .csv files (created when needed, not committed)
 ```
 
@@ -182,6 +183,6 @@ parsers, the cyclic function with no essential PIs, and the hazard example.
 Per the course AI policy: this project was developed with help from Anthropic's Claude
 (Claude Code). It was used to restructure our original `main.py` and BLIF parser into
 the current modules, and to write the minimization, hazard, truth-table, Verilog and
-test code, the FPGA wrappers/constraints, and this README. Design decisions (input
+test code, the FPGA wrappers/constraints, and some of this README. Design decisions (input
 formats, interface, minimization method, custom commands, Verilog style, target
 boards) were made by the team.
