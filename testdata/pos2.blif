@@ -5,23 +5,17 @@
 .names a b temp1 #<in1> ... <out>       #followed by single-output cover rows:
 1- 1   #input pattern (0/1/-) and output value
 -1 1   #(constant node: no inputs)
-00 0
 
 .names a c temp2 #<in1> ... <out>       #followed by single-output cover rows:
 0- 1   #input pattern (0/1/-) and output value
 -1 1   #(constant node: no inputs)
-10 0
 
 .names d e temp3 #<in1> ... <out>       #followed by single-output cover rows:
 1- 1   #input pattern (0/1/-) and output value
 -1 1   #(constant node: no inputs)
-00 0
 
 .names temp1 temp2 temp3 f #<in1> ... <out>       #followed by single-output cover rows:
 111 1   #input pattern (0/1/-) and output value
-0-- 0   #(constant node: no inputs)
--0- 0
---0 0
 
 
 .end
