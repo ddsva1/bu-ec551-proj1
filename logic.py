@@ -1,27 +1,10 @@
-"""Core Boolean logic: the BoolFunction type, cube helpers, expression
-formatting, and Quine-McCluskey minimization.
-
-Cube notation (used everywhere in this project)
------------------------------------------------
-A cube is a string with one character per variable, in variable order:
-    '1' = the variable appears uncomplemented
-    '0' = the variable appears complemented
-    '-' = the variable does not appear
-Example with variables [A, B, C]:  "1-0"  means the product term  A~C.
-A cube with no '-' is a single minterm, e.g. "101" = minterm 5.
-
-The same cubes describe POS clauses too: a POS clause is written from an
-OFF-set cube using De Morgan, so the OFF-set cube "1-0" (A~C) becomes the
-clause (~A + C).
-"""
-
 from dataclasses import dataclass
 from itertools import combinations
 
 
 @dataclass
 class BoolFunction:
-    """One single-output Boolean function, stored as its truth table."""
+    """One single-output Boolean function, stored as on-set minterm numbers."""
     name: str            # output name
     variables: list      # input names
     on_set: set          # minterm numbers where the function is 1
@@ -36,12 +19,8 @@ class BoolFunction:
         return set(range(2 ** self.num_vars)) - self.on_set
 
 
-# ---------------------------------------------------------------------------
-# Cube helpers
-# ---------------------------------------------------------------------------
-
 def to_cube(m, n):
-    """Minterm number -> full cube of n bits, e.g. to_cube(5, 3) = "101"."""
+    """Minterm number -> full cube of n bits, ex: to_cube(5, 3) = "101"."""
     return format(m, f"0{n}b")
 
 
@@ -51,7 +30,7 @@ def minterm_cubes(minterms, n):
 
 
 def input_values(m, variables):
-    """Minterm m -> {variable: 0 or 1}, e.g. 5 with [A, B, C] -> {A: 1, B: 0, C: 1}."""
+    """Minterm m -> {variable: 0 or 1}, ex: 5 with [A, B, C] -> {A: 1, B: 0, C: 1}."""
     return {var: int(bit) for var, bit in zip(variables, to_cube(m, len(variables)))}
 
 
@@ -76,20 +55,15 @@ def cube_sort_key(cube):
     return cube.replace("-", "2")
 
 
-# ---------------------------------------------------------------------------
-# Formatting cubes as expressions
-# ---------------------------------------------------------------------------
-
 def _join_product(literals, variables):
-    """Single-letter variables are written side by side (A~BC);
-    longer names are separated by spaces (A ~B Cin)."""
+    """Single-letter variables not separated (A~BC); Multi-letter variables space-separated (A ~B Cin)."""
     if all(len(var) == 1 for var in variables):
         return "".join(literals)
     return " ".join(literals)
 
 
 def on_string(cube, variables):
-    """SOP product term, e.g. "1-0" -> "A~C"."""
+    """SOP product term, ex: "1-0" -> "A~C"."""
     literals = []
     for bit, var in zip(cube, variables):
         if bit == "1":
@@ -97,12 +71,12 @@ def on_string(cube, variables):
         elif bit == "0":
             literals.append("~" + var)
     if not literals:
-        return "1"                  # a cube with no literals is always 1
+        return "1"
     return _join_product(literals, variables)
 
 
 def off_string(cube, variables):
-    """POS clause from an OFF-set cube (De Morgan), e.g. "1-0" -> "(~A + C)"."""
+    """POS sum term from an OFF-set cube, ex: "1-0" -> "(~A + C)"."""
     literals = []
     for bit, var in zip(cube, variables):
         if bit == "1":
@@ -110,33 +84,26 @@ def off_string(cube, variables):
         elif bit == "0":
             literals.append(var)
     if not literals:
-        return "0"                  # the OFF-set is everything, so the clause is 0
+        return "0"
     return "(" + " + ".join(literals) + ")"
 
 
 def sop_string(cubes, variables):
-    """Sum of products, e.g. ["0---", "-10-"] -> "~A + B~C"."""
+    """Sum of products, ex: ["0---", "-10-"] -> "~A + B~C"."""
     if not cubes:
         return "0"
     return " + ".join(on_string(cube, variables) for cube in cubes)
 
 
 def pos_string(cubes, variables):
-    """Product of sums from OFF-set cubes, e.g. ["1-0"] -> "(~A + C)"."""
+    """Product of sums from OFF-set cubes, ex: ["1-0"] -> "(~A + C)"."""
     if not cubes:
         return "1"
     return "".join(off_string(cube, variables) for cube in cubes)
 
 
-# ---------------------------------------------------------------------------
-# Quine-McCluskey minimization
-# ---------------------------------------------------------------------------
-
 def combine(a, b):
-    """
-    Merge two cubes that differ in exactly one position
-    combine("101", "100") = "10-"
-    """  
+    """Merge two cubes that differ in exactly one position for QM, ex: combine("101", "100") = "10-" """  
     diff = [i for i in range(len(a)) if a[i] != b[i]]
     if len(diff) != 1:
         return None
@@ -185,15 +152,10 @@ def count_covered(cube, minterms):
 
 
 def minimal_cover(minterms, n):
-    """Minimized two-level cover of `minterms`, as a list of cubes.
-
-    1. Find the prime implicants and take all essential ones.
-    2. While some minterms are still uncovered, add the prime that covers
-       the most of them. On a tie, take the prime with more '-' (fewer
-       literals).
-
-    Step 2 is a greedy choice: simple and usually minimal, but not
-    guaranteed to be the absolute minimum.
+    """
+    1. Find essential prime implicants.
+    2. If some minterms are still not covered, add the PI that covers
+       the most of them.
     """
     primes = prime_implicants(minterms, n)
     cover = essential_prime_implicants(primes, minterms)

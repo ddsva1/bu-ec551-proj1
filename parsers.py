@@ -42,7 +42,7 @@ def parse_literals(text):
 
 def literal_is_true(literal, values):
     var, positive = literal
-    return values[var] == (1 if positive else 0)
+    return values[var] == positive
 
 
 def read_txt(path):
@@ -55,7 +55,6 @@ def read_txt(path):
     if bad:
         raise ValueError(f"{path}: unexpected characters {''.join(sorted(bad))!r}")
 
-    # same idea as zero() in the original main.py: collect the variables used
     variables = sorted({ch for ch in expr if ch.isalpha()})
 
     if "(" in expr:
@@ -88,7 +87,6 @@ def read_txt(path):
 
 
 UNSUPPORTED = (".latch", ".mlatch", ".subckt", ".gate", ".search", ".fsm")
-
 
 class Gate:
     """One .names block: a logic node driving one net."""

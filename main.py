@@ -1,10 +1,14 @@
+
+
 import os
 import sys
 from collections import namedtuple
 
+
 from logic import (essential_prime_implicants, literal_count, minimal_cover,
                    minterm_cubes, pos_string, prime_implicants, sop_string, on_string)
 from parsers import read_blif, read_txt
+from verilog_gen import write_verilog
 
 OUTPUT_DIR = "output"
 
@@ -28,9 +32,6 @@ def numbers(minterms):
     return ", ".join(str(m) for m in sorted(minterms))
 
 
-# ---------------------------------------------------------------------------
-# Commands 1-10
-# ---------------------------------------------------------------------------
 
 def canonical_sop(design):
     for f in design.functions:
@@ -106,10 +107,6 @@ def off_set_maxterms(design):
         print(f"{f.name}: {len(f.off_set)} OFF-set maxterm(s)  ΠM({numbers(f.off_set)})")
 
 
-# ---------------------------------------------------------------------------
-# Commands 11, 12, Verilog, run all
-# ---------------------------------------------------------------------------
-
 def hazard_detection(design):
     pass
 
@@ -119,7 +116,7 @@ def truth_table(design):
 
 
 def verilog(design):
-    pass
+    write_verilog(design.functions, design.name, design.path, OUTPUT_DIR)
 
 
 def run_all(design):
