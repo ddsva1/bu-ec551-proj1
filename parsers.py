@@ -6,8 +6,9 @@ Two input formats are supported:
    variables, '~' for NOT, spaces are ignored:
        SOP:  ~A+B~C+~CD
        POS:  (A+B)(~A+C)
-   The output is named F. Variables are ordered alphabetically, and the first
-   one is the most significant bit of the minterm number.
+   The output is named F (F_out if F is one of the variables). Variables are
+   ordered alphabetically, and the first one is the most significant bit of
+   the minterm number.
 
 2. BLIF circuit (.blif):
        .model <name>
@@ -82,7 +83,11 @@ def read_txt(path):
             return any(all(literal_is_true(lit, values) for lit in term) for term in terms)
 
     on_set = {m for m in range(2 ** len(variables)) if is_on(input_values(m, variables))}
-    return [BoolFunction("F", variables, on_set)]
+    # name the output F, unless an input variable is already called F
+    name = "F"
+    if name in variables:
+        name = "F_out"
+    return [BoolFunction(name, variables, on_set)]
 
 
 
@@ -171,6 +176,10 @@ def read_blif(path):
                 raise ValueError(f"{path}: expected '<pattern> <value>', got {line!r}")
             if len(pattern) != len(gate.inputs) or set(pattern) - set("01-") or value not in ("0", "1"):
                 raise ValueError(f"{path}: bad cover row {line!r}")
+            # a block's rows all list the ON-set (end in 1) or all list the OFF-set (end in 0)
+            if gate.rows and int(value) != gate.row_value:
+                raise ValueError(f"{path}: the .names block for {net!r} mixes rows ending in 1 "
+                                 f"and rows ending in 0 (at row {line!r}); use only one kind")
             gate.rows.append(pattern)
             gate.row_value = int(value)
 

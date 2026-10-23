@@ -15,8 +15,7 @@ NUM_OUTPUTS = 8       # width of the fixed "out" port
 
 
 def verilog_name(name):
-    """Legal Verilog identifier: letters, digits and _, not starting with a digit,
-    and not clashing with the port names in/out."""
+    """Legal Verilog identifier"""
     name = re.sub(r"\W", "_", name)
     if name[0].isdigit():
         name = "_" + name
@@ -60,7 +59,6 @@ def write_two_level_module(path, module_name, variables, outputs, style, comment
                 if any(cube[i] not in (plain_bit, "-")
                        for cubes in outputs.values() for cube in cubes)]
 
-    # work out all the gates first, then write them out
     term_wires = []       # internal wires: and0, and1, ... (or or0, or1, ...)
     term_gates = []       # (wire, input signals) for each term gate
     final_gates = []      # (output, input signals) for each output

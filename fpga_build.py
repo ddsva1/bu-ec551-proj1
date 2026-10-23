@@ -1,5 +1,4 @@
-"""Build a design for an FPGA board and program it, in one command.
-
+"""
 Usage:
     py fpga_build.py <board> <input file>
     board: nexys  (Digilent Nexys 4 DDR)
@@ -19,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 
+from logic import TooLargeError
 from main import load_design
 from verilog_gen import verilog_name, write_verilog
 
@@ -51,7 +51,11 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     design = load_design(input_path)
-    write_verilog(design.functions, design.name, design.path, "output")
+    try:
+        write_verilog(design.functions, design.name, design.path, "output")
+    except TooLargeError as error:
+        print("Stopped:", error)
+        sys.exit(1)
     if len(design.functions[0].variables) > board["inputs"] or len(design.functions) > board["outputs"]:
         print(f"Note: this board shows only the first {board['inputs']} inputs "
               f"and {board['outputs']} outputs")
