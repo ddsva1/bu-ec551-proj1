@@ -148,5 +148,4 @@ def write_verilog(functions, design_name, source_path, out_dir):
     write_two_level_module(pos_path, "circuit_pos", in_ports, pos, "pos", pos_comments)
     print("Wrote", sop_path)
     print("Wrote", pos_path)
-    print("Board wrappers: fpga/top_nexys4ddr.v (sw[15:0], led[7:0] SOP / led[15:8] POS)")
-    print("                fpga/top_arty_z7.v   (sw[1:0] + btn[3:0], led[1:0] SOP / led[3:2] POS)")
+    print("Board wrapper: fpga/top_nexys4ddr.v (sw[15:0], led[7:0] SOP / led[15:8] POS)")
