@@ -28,7 +28,7 @@ def help():
     print("==================================================")
 
 def one(x, info):
-    print("SOP: "+ x)
+    print("SOP to CANONICAL SOP: "+x)
     canon = []
     print(info[0])
     print(info[1])
@@ -37,8 +37,9 @@ def one(x, info):
         for item2 in info[0]:
             if item2 not in item:
                 missing.append(item2)
-        print(item)
         print("missing=",missing)
+
+
 
 def two(x, info):
     print("SOP to CANONICAL POS")

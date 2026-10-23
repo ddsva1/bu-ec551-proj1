@@ -1,0 +1,24 @@
+.model sop7bb
+.inputs a b c d #(may repeat)
+.outputs f   #(may repeat)
+.names a temp1 #<in1> ... <out>       #followed by single-output cover rows:
+0 1
+1 0
+
+.names b c temp2
+00 0
+01 0
+10 1
+11 0
+
+.names c d temp3
+00 0
+01 1
+10 0
+11 0
+
+.names temp1 temp2 temp3 f
+111 1 #ask about this - i don't think maxterms have to be added? but will ask
+
+.end
+#'#' comments and '\\' line continuation.
