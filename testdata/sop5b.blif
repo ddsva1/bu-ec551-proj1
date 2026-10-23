@@ -1,6 +1,6 @@
 .model sop5b
-.inputs <a> <b> <c> #(may repeat)
-.outputs <f>   #(may repeat)
+.inputs a b c#(may repeat)
+.outputs f   #(may repeat)
 .names b c temp1 #<in1> ... <out>       #followed by single-output cover rows:
 00 0                   #input pattern (0/1/-) and output value
 01 0                     #(constant node: no inputs)
