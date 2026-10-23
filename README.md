@@ -186,12 +186,9 @@ parsers, the cyclic function with no essential PIs, and the hazard example.
 |Missing outputs in .outputs line|xsop3.blif|Error text shown|
 |Internal wire driven twice|xsop4.blif|Error text shown|
 |Primary Input driven by internal gate|xsop5.blif|Error text shown|
-|Missing '.end' line|xsop7.blif|Will provide correct verilog code, will result in correct commands|
-|Error in gate names|xsop8.blif|Will provide correct verilog code, will result in correct commands|
-
-|Uncaught Errors|File used|
-|---|---|
-|Internal gate ordering|xsop6.blif; will provide incorrect verilog code, will not result in correct commands.|
+|Internal gate ordering|xsop6.blif| will provide correct verilog code, will result in correct outputs.|
+|Missing '.end' line|xsop7.blif|Will provide correct verilog code, will result in correct outputs|
+|Error in gate names|xsop8.blif|Will provide correct verilog code, will result in correct outputs|
 
 
 ## AI usage
