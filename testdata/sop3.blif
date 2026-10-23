@@ -2,7 +2,7 @@
 .inputs a b  #(may repeat)
 .outputs f   #(may repeat)
 .names a b f #<in1> ... <out>       #followed by single-output cover rows:
-00 0                    #input pattern (0/1/-) and output value
+                  #input pattern (0/1/-) and output value
 01 1                      #(constant node: no inputs)
 10 1
 11 1

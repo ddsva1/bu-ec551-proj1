@@ -2,19 +2,12 @@
 .inputs a b c d #(may repeat)
 .outputs f   #(may repeat)
 .names a b temp1 #<in1> ... <out>       #followed by single-output cover rows:
-00 0                   #input pattern (0/1/-) and output value
-01 0                     #(constant node: no inputs)
-10 0
 11 1
 
 .names c d temp2
-00 0                   #input pattern (0/1/-) and output value
-01 0                     #(constant node: no inputs)
-10 0
 11 1
 
-.names temp1 temp2 f
-00 0                   #input pattern (0/1/-) and output value
+.names temp1 temp2 f                 #input pattern (0/1/-) and output value
 01 1                     #(constant node: no inputs)
 10 1
 11 1

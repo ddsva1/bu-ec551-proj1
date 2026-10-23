@@ -2,8 +2,7 @@
 .inputs a #[REPLACE WITH INPUTS SEPARATED BY SPACES]  #(may repeat)
 .outputs f   #can change name of output
 .names a f #<in1> ... <out>       #followed by single-output cover rows:
- 0 0   #input pattern (0/1/-) and output value
- 1 1   #(constant node: no inputs)
+ 1 1   #(constant node: no inputs) - remember, only OFF set or only ON set!
 
 .end
 #'#' comments and '\\' line continuation.
