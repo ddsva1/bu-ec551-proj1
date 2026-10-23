@@ -186,16 +186,19 @@ parsers, the cyclic function with no essential PIs, and the hazard example.
 |Missing outputs in .outputs line|xsop3.blif|Error text shown|
 |Internal wire driven twice|xsop4.blif|Error text shown|
 |Primary Input driven by internal gate|xsop5.blif|Error text shown|
-|Internal gate ordering|xsop6.blif| will provide correct verilog code, will result in correct outputs.|
-|Missing '.end' line|xsop7.blif|Will provide correct verilog code, will result in correct outputs|
-|Error in gate names|xsop8.blif|Will provide correct verilog code, will result in correct outputs|
+|Internal gate ordering|xsop6.blif|Will produce correct verilog code and correct outputs.|
+|Missing '.end' line|xsop7.blif|Will produce correct verilog code and correct outputs.|
+|Error in gate names|xsop8.blif|Will produce correct verilog code and correct outputs.|
 
 
 ## AI usage
 
 Per the course AI policy: this project was developed with help from Anthropic's Claude
 (Claude Code). It was used to restructure our original `main.py` and BLIF parser into
-the current modules, and to write the minimization, hazard, truth-table, Verilog and
-test code, the FPGA wrappers/constraints, and some of this README. Design decisions (input
-formats, interface, minimization method, custom commands, Verilog style, target
-boards) were made by the team.
+the current modules, to write the minimization, hazard, truth-table, Verilog and testing 
+code, the FPGA wrappers/constraints, and to write some of this README. 
+
+No AI was used to write test inputs or to inform test data creation. 
+
+Design decisions (input formats, interface, minimization method, custom 
+commands, Verilog style, target boards) were made by the team.
