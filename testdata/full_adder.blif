@@ -1,0 +1,14 @@
+# 1-bit full adder: S = A xor B xor Cin, Cout = majority(A, B, Cin)
+.model full_adder
+.inputs A B Cin
+.outputs S Cout
+.names A B Cin S
+100 1
+010 1
+001 1
+111 1
+.names A B Cin Cout
+11- 1
+1-1 1
+-11 1
+.end
