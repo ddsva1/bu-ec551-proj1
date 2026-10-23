@@ -1,4 +1,4 @@
-.model sop7bb
+.model sop7b
 .inputs a b c d #(may repeat)
 .outputs f   #(may repeat)
 .names a temp1 #<in1> ... <out>       #followed by single-output cover rows:
@@ -18,7 +18,9 @@
 11 0
 
 .names temp1 temp2 temp3 f
-111 1 #ask about this - i don't think maxterms have to be added? but will ask
-
+1-- 1 #ask about this - i don't think maxterms have to be added? but will ask
+-1- 1
+--1 1
+000 0
 .end
 #'#' comments and '\\' line continuation.
