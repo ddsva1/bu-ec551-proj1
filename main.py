@@ -1,262 +1,222 @@
-import sys
 
-dict = {
-    "1": "Sum of Products",
-    "2": "Product of Sums",
-    "3": "Inverse Sum of Products",
-    "4": "Inverse Product of Sums",
-    "5": "Minimised Sum of Products (+metric)",
-    "6": "Literal Minimized Product of Sums (+metric)",
-    "7": "Number of Prime Implicants",
-    "8": "Number of Essential Prime Implicants",
-    "9": "ON-Set Minterms (Σ𝑚)",
-    "10": "OFF-Set Minterms (Π𝑀)",
-    "11": "SOP to SOP Verilog",
-    "12": "SOP to POS Verilog"
- }
+
+import os
+import sys
+from collections import namedtuple
+
+
+from custom_commands import export_truth_table, report_hazards
+from logic import (TooLargeError, essential_prime_implicants, literal_count, minimal_cover,
+                   minterm_cubes, pos_string, prime_implicants, sop_string, on_string)
+from parsers import read_blif, read_txt
+from verilog_gen import write_verilog
+
+OUTPUT_DIR = "output"
+
+Design = namedtuple("Design", ["name", "path", "functions"])
+
+
+def load_design(path):
+    if path.lower().endswith(".blif"):
+        functions = read_blif(path)
+    else:
+        functions = read_txt(path)
+    name = os.path.splitext(os.path.basename(path))[0]
+    variables = functions[0].variables
+    print(f"Loaded {path}: inputs {', '.join(variables)}; "
+          f"output(s) {', '.join(f.name for f in functions)}")
+    return Design(name, path, functions)
+
+
+def numbers(minterms):
+    """Comma-separated sorted minterm numbers, e.g. "0, 3, 5"."""
+    return ", ".join(str(m) for m in sorted(minterms))
+
+
+
+def canonical_sop(design):
+    for f in design.functions:
+        print(f"{f.name} = {sop_string(minterm_cubes(f.on_set, f.num_vars), f.variables)}")
+        print(f"{f.name} = Σm({numbers(f.on_set)})")
+
+
+def canonical_pos(design):
+    for f in design.functions:
+        print(f"{f.name} = {pos_string(minterm_cubes(f.off_set, f.num_vars), f.variables)}")
+        print(f"{f.name} = ΠM({numbers(f.off_set)})")
+
+
+def inverse_canonical_sop(design):
+    # the inverse is 1 exactly where F is 0, so its minterms are F's OFF-set
+    for f in design.functions:
+        print(f"~{f.name} = {sop_string(minterm_cubes(f.off_set, f.num_vars), f.variables)}")
+        print(f"~{f.name} = Σm({numbers(f.off_set)})")
+
+
+def inverse_canonical_pos(design):
+    # the inverse is 0 exactly where F is 1, so its maxterms are F's ON-set
+    for f in design.functions:
+        print(f"~{f.name} = {pos_string(minterm_cubes(f.on_set, f.num_vars), f.variables)}")
+        print(f"~{f.name} = ΠM({numbers(f.on_set)})")
+
+
+def minimized_sop(design):
+    for f in design.functions:
+        cover = minimal_cover(f.on_set, f.num_vars)
+        canonical = len(f.on_set) * f.num_vars
+        minimized = literal_count(cover)
+        print(f"{f.name} = {sop_string(cover, f.variables)}")
+        print(f"  literals: canonical SOP {canonical} -> minimized {minimized} "
+              f"(saved {canonical - minimized})")
+
+
+def minimized_pos(design):
+    # minimize the OFF-set, then write each cube as a clause (De Morgan)
+    for f in design.functions:
+        cover = minimal_cover(f.off_set, f.num_vars)
+        canonical = len(f.off_set) * f.num_vars
+        minimized = literal_count(cover)
+        print(f"{f.name} = {pos_string(cover, f.variables)}")
+        print(f"  literals: canonical POS {canonical} -> minimized {minimized} "
+              f"(saved {canonical - minimized})")
+
+
+def prime_implicant_count(design):
+    for f in design.functions:
+        primes = prime_implicants(f.on_set, f.num_vars)
+        print(f"{f.name}: {len(primes)} prime implicant(s)")
+        for p in primes:
+            print(f"  {on_string(p, f.variables):<12} cube {p}")
+
+
+def essential_prime_implicant_count(design):
+    for f in design.functions:
+        primes = prime_implicants(f.on_set, f.num_vars)
+        essentials = essential_prime_implicants(primes, f.on_set)
+        print(f"{f.name}: {len(essentials)} essential prime implicant(s)")
+        for p in essentials:
+            print(f"  {on_string(p, f.variables):<12} cube {p}")
+
+
+def on_set_minterms(design):
+    for f in design.functions:
+        print(f"{f.name}: {len(f.on_set)} ON-set minterm(s)  Σm({numbers(f.on_set)})")
+
+
+def off_set_maxterms(design):
+    for f in design.functions:
+        print(f"{f.name}: {len(f.off_set)} OFF-set maxterm(s)  ΠM({numbers(f.off_set)})")
+
+
+def hazard_detection(design):
+    for f in design.functions:
+        report_hazards(f)
+
+
+def truth_table(design):
+    export_truth_table(design.functions, design.name, OUTPUT_DIR)
+
+
+def verilog(design):
+    write_verilog(design.functions, design.name, design.path, OUTPUT_DIR)
+
+
+def run_all(design):
+    for key in [str(i) for i in range(1, 13)]:
+        run_command(key, design)
+
+
+COMMANDS = {
+    "1": ("Canonical SOP", canonical_sop),
+    "2": ("Canonical POS", canonical_pos),
+    "3": ("Inverse canonical SOP", inverse_canonical_sop),
+    "4": ("Inverse canonical POS", inverse_canonical_pos),
+    "5": ("Minimized SOP", minimized_sop),
+    "6": ("Minimized POS", minimized_pos),
+    "7": ("Number of prime implicants", prime_implicant_count),
+    "8": ("Number of essential prime implicants", essential_prime_implicant_count),
+    "9": ("ON-set minterms (Σm)", on_set_minterms),
+    "10": ("OFF-set maxterms (ΠM)", off_set_maxterms),
+    "11": ("Custom 1: hazard detection (static-1 / static-0)", hazard_detection),
+    "12": ("Custom 2: truth table export (screen + CSV)", truth_table),
+    "v": ("Generate structural Verilog (SOP + POS)", verilog),
+    "a": ("Run all commands 1-12", run_all),
+}
+
+
+def run_command(key, design):
+    description, function = COMMANDS[key]
+    print(f"\n[{key}] {description}")
+    try:
+        function(design)
+    except TooLargeError as error:
+        print("Stopped:", error)
+
 
 def help():
-    print("Structure of Command Line input:")
-    print("py main.py number-from-1-to-12 relative-address-of-file-with-boolean-function")
+    print("Structure of command line input:")
+    print("  py main.py <file>              load the file and open the command menu")
+    print("  py main.py <command> <file>    run one command, e.g. py main.py 5 testdata/sop7.txt")
     print("--------------------------------------------------")
-    print("Available input function types:")
-    print("Sum of Products")
+    print("Available input file types:")
+    print("  .txt   SOP like ~A+B~C+~CD  or  POS like (A+B)(~A+C)")
+    print("  .blif  combinational BLIF circuit (multiple outputs allowed)")
     print("--------------------------------------------------")
-    print("Available Options:")
-    for item in dict:
-        print(item, ": ", dict[item])
+    print("Available commands:")
+    for key, (description, _) in COMMANDS.items():
+        print(f"  {key:>2}: {description}")
     print("==================================================")
 
-def one(x, info):
-    print("SOP: "+ x)
-    canon = []
-    print(info[0])
-    print(info[1])
-    for item in info[1]:
-        missing = []
-        for item2 in info[0]:
-            if item2 not in item:
-                missing.append(item2)
-        print(item)
-        print("missing=",missing)
 
-def two(x, info):
-    print("SOP to CANONICAL POS")
-
-def three(x):
-    print("ISOP: not done yet")
-
-def four(x):
-    print("IPS: not done yet")
-
-def five(x):
-    print("MSP: not done yet")
-
-def six(x):
-    print("LMSP: not done yet")
-
-def seven(x):
-    print("NPI: not done yet")
-
-def eight(x):
-    print("NEPI: not done yet")
-
-def nine(x):
-    print("ONSM: not done yet")
-
-def ten(x):
-    print("OFFSM: not done yet")
-
-def eleven(x, info):
-    print("CC1: SOP to VERILOG")
-    print("SOP: ",x)
-    
-    f = open("output.txt", "w")
-    #module setup and i/o wires
-    f.write("module x(\n")
-    f.write("   output reg XOUT,\n")
-    counter = 0
-    while counter< len(info[0])-1:
-        f.write("   input wire "+info[0][counter]+",\n")
-        counter = counter+1
-    f.write("   input wire "+info[0][counter]+"\n")
-    f.write(");\n")
-
-    #internal wires setup
-    counter = 0
-    andwires = []
-    while counter <len(info[1]):
-        f.write("   wire and"+str(counter)+";\n")
-        andwires.append("and"+str(counter))
-        counter = counter+1
-
-    #creating and gates
-    andx = 0
-    for item in info[1]:
-        andlist = item[0]
-        counter = 1
-        if (len(item) == 1):
-            andlist = andlist + ", 1'b1"
-        elif (len(item)==2 and andlist == "~"):
-            andlist = andlist + item[1]+", 1'b1"
-        else:
-            if andlist == "~":
-                andlist = andlist+item[1]
-                counter = counter+1
-            while counter<len(item):
-
-                if item[counter] == "~":
-                    andlist = andlist+", ~"+item[counter+1]
-                    counter = counter+2
-                elif item[counter]!= "~":
-                    andlist = andlist+", "+item[counter]
-                    counter = counter +1
-            
-        f.write("   and("+andwires[andx]+", "+andlist+");\n")
-        andx = andx+1
-    
-    #creating or gate\
-    orgate = andwires[0]
-    counter = 1
-    if (len(info[1]) == 1):
-                orgate = orgate + ", 1'b1"
-    else:
-        while counter < len(info[1]):
-            orgate = orgate + ", " +andwires[counter]
-            counter = counter + 1
-    f.write("   or(XOUT,"+orgate+");\n")
-
-    #ending module
-    f.write("endmodule")
-    f.close()
-
-def twelve(x, info):
-    print("SOP: ",x)
-    f = open("output.txt", "w")
-
-    f.write("module x(\n")
-    f.write("   output reg XOUT,\n")
-    counter = 0
-    while counter< len(info[0])-1:
-        f.write("   input wire "+info[0][counter]+",\n")
-        counter = counter+1
-    f.write("   input wire "+info[0][counter]+"\n")
-    f.write(");\n")
-
-    #internal wires setup
-    counter = 0
-    orwires = []
-    while counter <len(info[1]):
-        f.write("   wire or"+str(counter)+";\n")
-        orwires.append("or"+str(counter))
-        counter = counter+1
-
-    #creating or gates
-    orx = 0
-    for item in info[1]:
-        orlist = "~"+item[0]
-        counter = 1
-        if (len(item) == 1):
-            orlist = orlist + ", 1'b1"
-        elif (len(item)==2 and orlist == "~~"):
-            orlist = orlist + item[1]+", 1'b1"
-        else:
-            if orlist == "~":
-                orlist = item[1]
-                counter = counter+1
-            while counter<len(item):
-                if item[counter] == "~":
-                    orlist = orlist+", "+item[counter+1]
-                    counter = counter+2
-                elif item[counter]!= "~":
-                    orlist = orlist+", ~"+item[counter]
-                    counter = counter +1
-            
-        f.write("   or("+orwires[orx]+", "+orlist+");\n")
-        orx = orx+1
-    
-
-    #creating nand gate
-    nandgate = orwires[0]
-    counter = 1
-    if (len(info[1]) == 1):
-        nandgate = nandgate + ", 1'b1"
-    else:
-        while counter < len(info[1]):
-            nandgate = nandgate + ", " +orwires[counter]
-            counter = counter + 1
-    f.write("   nand(XOUT,"+nandgate+");\n")
-    
-    #ending module
-    f.write("endmodule")
-    f.close()
-
-def zero(x):
-    list_of_prods = x.split('+')
-    print("products summed in given expression: ",list_of_prods)
-    varset = []
-    for item in list_of_prods:
-        for item2 in list(item):
-            if (item2 not in varset) and (item2 != "~"):
-                varset.append(item2)
-    print("variables in expression: ",varset)
-    return [varset, list_of_prods]
+def menu_loop(design):
+    help()
+    print("In the menu you can also type:  l <file> = load another file,  h = help,  q = quit")
+    while True:
+        try:
+            choice = input("\ncommand> ").strip()
+        except EOFError:
+            break
+        if choice in ("q", "quit", "exit"):
+            break
+        elif choice == "h":
+            help()
+        elif choice.startswith("l "):
+            try:
+                design = load_design(choice[2:].strip())
+            except (OSError, ValueError) as error:
+                print("Error:", error)
+        elif choice in COMMANDS:
+            run_command(choice, design)
+        elif choice:
+            print("Unknown command; type h for help.")
 
 
 def main():
-    if len(sys.argv)!=3:
-        help()
-        exit
+    sys.stdout.reconfigure(encoding="utf-8")       # so Σ and Π print on Windows
+    args = sys.argv[1:]
+    if len(args) == 1:
+        command, path = None, args[0]
+    elif len(args) == 2:
+        command, path = args
     else:
-        try:
-            task = sys.argv[1]
-            print(task+": "+ dict[task])
-            filename = sys.argv[2]
-            print("File name entered: "+filename)
-        except:#not number from 1 to 12
-            print("please check number entered - should be value from 1 to 12.")
-            help()
-            exit
-        try:
-            file = open(filename, "r")
-            x = file.read()
-            print("function inside file: ", x)
-            file.close()
-        except:
-            print ("please check file name")
-            help()
-            quit
-        info = zero(x)
-        if task == "1":
-            one(x, info)
-        elif task == "2":
-            two(x, info)
-        elif task == "3":
-            three(x, info)
-        elif task == "4":
-            four(x, info)
-        elif task == "5":
-            five(x, info)
-        elif task == "6":
-            six(x, info)
-        elif task == "7":
-            seven(x, info)
-        elif task == "8":
-            eight(x, info)
-        elif task == "9":
-            nine(x, info)
-        elif task == "10":
-            ten(x, info)
-        elif task == "11":
-            eleven(x, info)
-        elif task == "12":
-            twelve(x, info)
-                
-                
+        help()
+        return
+
+    if command is not None and command not in COMMANDS:
+        print(f"Unknown command {command!r}.")
+        help()
+        sys.exit(1)
+    try:
+        design = load_design(path)
+    except (OSError, ValueError) as error:
+        print("Error:", error)
+        sys.exit(1)
+
+    if command is None:
+        menu_loop(design)
+    else:
+        run_command(command, design)
 
 
-
-
-
-
-main()
+if __name__ == "__main__":
+    main()

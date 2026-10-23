@@ -1,0 +1,22 @@
+# Multi-level circuit: each .names block is one gate, the net names are wires.
+#   n1 = A AND B
+#   nC = NOT C        (written as an OFF-set row: nC is 0 when C is 1)
+#   n2 = nC AND D
+#   F  = n1 OR n2
+#   G  = F XOR A
+.model gates
+.inputs A B C D
+.outputs F G
+.names A B n1
+11 1
+.names C nC
+1 0
+.names nC D n2
+11 1
+.names n1 n2 F
+1- 1
+-1 1
+.names F A G
+10 1
+01 1
+.end

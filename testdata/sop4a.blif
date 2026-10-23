@@ -1,0 +1,13 @@
+.model sop4a
+.inputs a b c #(may repeat)
+.outputs f   #(may repeat)
+.names a b c f #<in1> ... <out>       #followed by single-output cover rows:
+                   #input pattern (0/1/-) and output value
+001 1                     #(constant node: no inputs)
+010 1
+011 1                  
+101 1                   
+110 1
+111 1
+.end
+#'#' comments and '\\' line continuation.
