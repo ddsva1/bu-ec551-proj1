@@ -15,8 +15,7 @@ NUM_OUTPUTS = 8       # width of the fixed "out" port
 
 
 def verilog_name(name):
-    """Legal Verilog identifier: letters, digits and _, not starting with a digit,
-    and not clashing with the port names in/out."""
+    """Legal Verilog identifier"""
     name = re.sub(r"\W", "_", name)
     if name[0].isdigit():
         name = "_" + name
@@ -60,7 +59,6 @@ def write_two_level_module(path, module_name, variables, outputs, style, comment
                 if any(cube[i] not in (plain_bit, "-")
                        for cubes in outputs.values() for cube in cubes)]
 
-    # work out all the gates first, then write them out
     term_wires = []       # internal wires: and0, and1, ... (or or0, or1, ...)
     term_gates = []       # (wire, input signals) for each term gate
     final_gates = []      # (output, input signals) for each output
@@ -150,5 +148,4 @@ def write_verilog(functions, design_name, source_path, out_dir):
     write_two_level_module(pos_path, "circuit_pos", in_ports, pos, "pos", pos_comments)
     print("Wrote", sop_path)
     print("Wrote", pos_path)
-    print("Board wrappers: fpga/top_nexys4ddr.v (sw[15:0], led[7:0] SOP / led[15:8] POS)")
-    print("                fpga/top_arty_z7.v   (sw[1:0] + btn[3:0], led[1:0] SOP / led[3:2] POS)")
+    print("Board wrapper: fpga/top_nexys4ddr.v (sw[15:0], led[7:0] SOP / led[15:8] POS)")

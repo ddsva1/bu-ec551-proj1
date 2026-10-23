@@ -1,2 +1,9 @@
 __pycache__/
 output/
+build/
+
+# Vivado projects created on the lab machine by vivado/*/create_project.tcl
+vivado/*/project/
+.Xil/
+vivado*.jou
+vivado*.log

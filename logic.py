@@ -113,16 +113,29 @@ def combine(a, b):
     return a[:i] + "-" + a[i + 1:]
 
 
+MAX_ROUND_CUBES = 2000    # comparing every pair of more cubes than this takes too long
+
+
+class TooLargeError(Exception):
+    """The function is too large to minimize with Quine-McCluskey in reasonable time."""
+
+
 def prime_implicants(minterms, n):
     """All prime implicants of the function whose ON-set is `minterms`.
 
     Start with one cube per minterm. Repeatedly merge every pair of cubes
     that differ in one variable. A cube that never merges with anything is
     a prime implicant.
+
+    Each round compares every pair of cubes, so a round with more than
+    MAX_ROUND_CUBES cubes would take too long; TooLargeError is raised instead.
     """
     current = {to_cube(m, n) for m in minterms}
     primes = set()
     while current:
+        if len(current) > MAX_ROUND_CUBES:
+            raise TooLargeError(f"too large to minimize with Quine-McCluskey "
+                                f"({len(current)} cubes in one round, limit {MAX_ROUND_CUBES})")
         merged = set()
         used = set()
         for a, b in combinations(sorted(current), 2):

@@ -5,7 +5,8 @@ import sys
 from collections import namedtuple
 
 
-from logic import (essential_prime_implicants, literal_count, minimal_cover,
+from custom_commands import export_truth_table, report_hazards
+from logic import (TooLargeError, essential_prime_implicants, literal_count, minimal_cover,
                    minterm_cubes, pos_string, prime_implicants, sop_string, on_string)
 from parsers import read_blif, read_txt
 from verilog_gen import write_verilog
@@ -108,11 +109,12 @@ def off_set_maxterms(design):
 
 
 def hazard_detection(design):
-    pass
+    for f in design.functions:
+        report_hazards(f)
 
 
 def truth_table(design):
-    pass
+    export_truth_table(design.functions, design.name, OUTPUT_DIR)
 
 
 def verilog(design):
@@ -129,15 +131,15 @@ COMMANDS = {
     "2": ("Canonical POS", canonical_pos),
     "3": ("Inverse canonical SOP", inverse_canonical_sop),
     "4": ("Inverse canonical POS", inverse_canonical_pos),
-    "5": ("Literal-minimized SOP (+ literals saved)", minimized_sop),
-    "6": ("Literal-minimized POS (+ literals saved)", minimized_pos),
+    "5": ("Minimized SOP", minimized_sop),
+    "6": ("Minimized POS", minimized_pos),
     "7": ("Number of prime implicants", prime_implicant_count),
     "8": ("Number of essential prime implicants", essential_prime_implicant_count),
     "9": ("ON-set minterms (Σm)", on_set_minterms),
     "10": ("OFF-set maxterms (ΠM)", off_set_maxterms),
     "11": ("Custom 1: hazard detection (static-1 / static-0)", hazard_detection),
     "12": ("Custom 2: truth table export (screen + CSV)", truth_table),
-    "v": ("Generate structural Verilog (SOP + POS + board wrappers)", verilog),
+    "v": ("Generate structural Verilog (SOP + POS)", verilog),
     "a": ("Run all commands 1-12", run_all),
 }
 
@@ -145,7 +147,10 @@ COMMANDS = {
 def run_command(key, design):
     description, function = COMMANDS[key]
     print(f"\n[{key}] {description}")
-    function(design)
+    try:
+        function(design)
+    except TooLargeError as error:
+        print("Stopped:", error)
 
 
 def help():
