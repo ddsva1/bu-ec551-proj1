@@ -178,6 +178,29 @@ command 12.
 `testdata/` reproduces the original truth table. It also checks the POS and BLIF
 parsers, the cyclic function with no essential PIs, and the hazard example.
 
+## Testdata Usage
+| Edge Case Tested | Command |
+|---|---|
+|Minimal Cases|sop[1 to 3].[blif/txt]|
+|Linking Minimal Cases|sop[4a/4b//5a/5b/6].[blif/txt]|
+|Varying .blif implementation with same result|sop4[a/b].blif, sop5[a/b].blif, sop7[a/b].blif|
+|Difference between PI/EPI non-equivalence|sop9.txt|
+
+|Common Errors|Error Detection Proof|
+|---|---|
+|Missing Primary Input|xsop1.blif|
+|Missing .outputs line|xsop2.blif|
+|Missing outputs in .outputs line|xsop3.blif|
+|Internal wire driven twice|xsop4.blif|
+|Primary Input driven by internal gate|xsop5.blif|
+
+|Uncaught Errors|File used|
+|---|---|
+|Internal gate ordering|xsop6.blif; will provide incorrect verilog code, will not result in correct commands.|
+|Missing '.end' line|xsop7.blif; will provide incorrect verilog code, will not result in correct commands|
+|Error in gate names|xsop8.blif; will provide incorrect verilog code, will not result in correct commands|
+
+
 ## AI usage
 
 Per the course AI policy: this project was developed with help from Anthropic's Claude
