@@ -1,0 +1,13 @@
+.model sop5b
+.inputs a b c#(may repeat)
+.outputs f   #(may repeat)
+.names b c temp1 #<in1> ... <out>       #followed by single-output cover rows:
+11 1
+
+.names temp1 a f                  #input pattern (0/1/-) and output value
+01 1                     #(constant node: no inputs)
+10 1
+11 1
+
+.end
+#'#' comments and '\\' line continuation.

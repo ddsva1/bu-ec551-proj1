@@ -1,0 +1,7 @@
+.model sop2
+.inputs a b  #(may repeat)
+.outputs f   #(may repeat)
+.names a b f #<in1> ... <out>       #followed by single-output cover rows:
+11 1
+.end
+#'#' comments and '\\' line continuation.

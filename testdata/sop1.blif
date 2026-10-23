@@ -1,0 +1,8 @@
+.model sop1
+.inputs a  #(may repeat)
+.outputs f   #(may repeat)
+.names a f #<in1> ... <out>       #followed by single-output cover rows:
+1 1                    #input pattern (0/1/-) and output value
+                       #(constant node: no inputs)
+.end
+#'#' comments and '\\' line continuation.

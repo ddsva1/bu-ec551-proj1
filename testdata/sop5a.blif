@@ -1,0 +1,11 @@
+.model sop5a
+.inputs a b c #(may repeat)
+.outputs f   #(may repeat)
+.names a b c f #<in1> ... <out>       #followed by single-output cover rows:
+011 1
+100 1                   
+101 1                  
+110 1
+111 1
+.end
+#'#' comments and '\\' line continuation.

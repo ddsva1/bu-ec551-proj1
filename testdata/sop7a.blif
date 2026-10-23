@@ -1,0 +1,10 @@
+.model sop7a
+.inputs a b c d #(may repeat)
+.outputs f   #(may repeat)
+.names a b c d f #<in1> ... <out>       #followed by single-output cover rows:
+0--- 1 #~A
+-10- 1 #B~C
+--01 1 #~CD
+
+.end
+#'#' comments and '\\' line continuation.
