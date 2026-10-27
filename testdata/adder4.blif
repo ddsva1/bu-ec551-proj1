@@ -1,0 +1,55 @@
+# 4-bit ripple-carry adder: {cout, s3..s0} = a3..a0 + b3..b0 + cin
+# Built from 4 one-bit full adders; carry c(i+1) feeds the next stage.
+.model adder4
+.inputs a3 a2 a1 a0 b3 b2 b1 b0 cin
+.outputs s0 s1 s2 s3 cout
+
+# bit 0: s0 = a0 xor b0 xor cin
+.names a0 b0 cin s0
+100 1
+010 1
+001 1
+111 1
+# bit 0: c1 = majority(a0, b0, cin)
+.names a0 b0 cin c1
+11- 1
+1-1 1
+-11 1
+
+# bit 1: s1 = a1 xor b1 xor c1
+.names a1 b1 c1 s1
+100 1
+010 1
+001 1
+111 1
+# bit 1: c2 = majority(a1, b1, c1)
+.names a1 b1 c1 c2
+11- 1
+1-1 1
+-11 1
+
+# bit 2: s2 = a2 xor b2 xor c2
+.names a2 b2 c2 s2
+100 1
+010 1
+001 1
+111 1
+# bit 2: c3 = majority(a2, b2, c2)
+.names a2 b2 c2 c3
+11- 1
+1-1 1
+-11 1
+
+# bit 3: s3 = a3 xor b3 xor c3
+.names a3 b3 c3 s3
+100 1
+010 1
+001 1
+111 1
+# bit 3: cout = majority(a3, b3, c3)
+.names a3 b3 c3 cout
+11- 1
+1-1 1
+-11 1
+
+.end
